@@ -40,6 +40,8 @@ conda activate snakemake
 
 ##  Pipeline
 
+There are five example files and the reference panel included within the `data/` folder. These allow for a small test run of the pipeline to be conducted.
+
 ### Setup the workflow
 
 Once inputs are provided, we build a config file
