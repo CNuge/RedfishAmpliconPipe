@@ -29,8 +29,10 @@ conda config --env --add channels defaults
 conda config --env --add channels bioconda
 conda config --env --add channels conda-forge
 
-# install the necessary software
+# install the necessary software (not in the channels above)
 conda install fastp
+conda install plink
+
 ```
 On subsequent executions you can simply run the following to activate the snakemake env
 ```
