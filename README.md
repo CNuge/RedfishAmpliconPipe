@@ -86,7 +86,8 @@ snakemake --snakefile RedfishMarkerCall -R variant_filter
 
 ### Commands for execution of Plink conversion Snakemake workflow
 
-```
+The second step is a simple series of plink commands to go from a vcf format to a filtered ped/map genotype data file pair
+
 ```
 #execute the snakemake file
 
@@ -94,7 +95,6 @@ snakemake --snakefile RedfishMarkerCall -R variant_filter
 snakemake --snakefile PlinkSnakefile -np
 
 snakemake --snakefile PlinkSnakefile --cores
-
 
 ```
 
