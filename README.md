@@ -1,5 +1,7 @@
 # RedfishAmpliconPipe
-A snakemake pipeline for processing and snp calling of amplicon data for redfish species identification
+A snakemake pipeline for processing and snp calling of amplicon data for redfish species identification.
+
+Please note this is a work in progress, documentation will be updated with time.
 
 
 ## Setup / Installation
@@ -34,7 +36,6 @@ On subsequent executions you can simply run the following to activate the snakem
 ```
 conda activate snakemake
 ```
-
 
 
 ##  Pipeline
