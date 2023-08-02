@@ -40,8 +40,6 @@ conda activate snakemake
 
 ##  Pipeline
 
-There are five example files and the reference panel included within the `data/` folder. These allow for a small test run of the pipeline to be conducted.
-
 ### Setup the workflow
 
 Once inputs are provided, we build a config file
@@ -79,9 +77,9 @@ snakemake -R samtools_sort
 snakemake -R samtools_index
 snakemake -R bcftools_call
 snakemake -R variant_filter
-snakemake -R plink_process 
 ```
 
 ## Tests
 
+There are five example files and the reference panel included within the `data/` folder. These allow for a small test run of the pipeline to be conducted.
 
