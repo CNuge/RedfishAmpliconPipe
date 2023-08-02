@@ -1,6 +1,9 @@
+"""Redfish Mark Calls using Snakemake amplicon pipeline
+
+Returns:
+    vcf : a variant call format file defined in the config file. Default is `qual_filtered_redfishamplicon_calls.vcf`
+"""
 configfile: "config.json" #this file generated with `python redfish_snake_setup.py`
-#configfile: "test_config.json" #this file generated with `python redfish_snake_setup.py`
-#using only the baby version to start
 
 def get_fastp_input_fastqs(wildcards):
     """Get the list of sample names to build inputs from the specified json config file."""
@@ -8,7 +11,7 @@ def get_fastp_input_fastqs(wildcards):
 
 rule all:
     input:
-        "plots/quals.svg"
+        config["vcf"]
 
 rule fastp_cut:
     """
@@ -111,40 +114,4 @@ rule variant_filter:
     shell:
         ' bcftools filter -i "DP>1800  && QUAL >= 30" {input.bcf}  > {output.vcf}'
 
-#bcftools filter -i "DP>1800  && QUAL >= 30"  redfishamplicon_calls.bcf   >  redfishamplicon_calls.vcf
-
-
-## GETTING WARNING WITH PLINK
-## NEED TO FIGURE OUT PROPER NAME HANDLING
-
-#rule plink_process:
-#    """
-#    Further filter the .vcf file based on MAF, geno, and mind.
-#    Produce BED/BIM output pair for subsequent use.
-#    """
-#    input:
-#        vcf=config["vcf"]
-#    params:
-#        plink_filename=config["plink"]
-#    log:
-#        "logs/bwa_mem/plink_process.log" 
-#    threads: 24
-#    shell:
-#        "plink --vcf {input.vcf} --allow-extra-chr --make-bed "
-#            "--double-id --maf 0.01 --geno 0.05 --mind 0.2 "
-#            "--out {params.plink_filename}"
-
-#plink --vcf redfishamplicon_calls.vcf --allow-extra-chr --make-bed --double-id --maf 0.01 --geno 0.05 --mind 0.05 --out redfishamplicon
-#above works, but doesn't check for successful exit
-
-rule plot_quals:
-    """
-    Use python script to plot a histogram of the quality values in the bcf file (pre filtering).
-    """
-    input:
-        config["bcf"]
-    output:
-        "plots/quals.svg"
-    script:
-        "scripts/plot-quals.py"
 
