@@ -48,6 +48,9 @@ Once inputs are provided, we build a config file
 python redfish_snake_setup.py 
 ```
 
+The pipeline is currently broken up into two snakemake workflow files, so as to delimit the two components (and logical end points of the workflow). The first workflow, `RedfishMarkerCall`, will take the data from raw fq files to variants called and stored in vcf format. The second workflow, `PlinkSnakefile` takes the output vcf from the previous workflow and conducts filtering and conversion in plink to produce a ped/map file pair for use with subsequent data analysis.
+
+
 ### Commands for execution of Amplicon calling Snakemake workflow
 
 ```

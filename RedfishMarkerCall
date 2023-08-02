@@ -1,4 +1,4 @@
-"""Redfish Mark Calls using Snakemake amplicon pipeline
+"""Redfish Amplicon Marker Calls via Snakemake pipeline
 
 Returns:
     vcf : a variant call format file defined in the config file. Default is `qual_filtered_redfishamplicon_calls.vcf`

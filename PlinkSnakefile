@@ -1,3 +1,10 @@
+"""Redfish data filtering and conversion to Plink format
+
+Input:
+    vcf : a variant call format file defined in the config file. Default is `qual_filtered_redfishamplicon_calls.vcf`
+Returns:
+    ped/map: a filtered ped and map file pair in plink format for use with subsequent data analysis.
+"""
 configfile: "config.json" #this file generated with `python redfish_snake_setup.py`
 
 rule all:
