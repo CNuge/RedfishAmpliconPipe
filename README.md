@@ -48,7 +48,7 @@ Once inputs are provided, we build a config file
 python redfish_snake_setup.py 
 ```
 
-### Commands for execution of Snakemake workflow
+### Commands for execution of Amplicon calling Snakemake workflow
 
 ```
 #execute the snakemake file
@@ -71,15 +71,29 @@ Individual steps listed below:
 
 ```
 snakemake --snakefile RedfishMarkerCall -R fastp_cut 
-snakemake -R bwa_index 
-snakemake -R bwa_map
-snakemake -R samtools_sort
-snakemake -R samtools_index
-snakemake -R bcftools_call
-snakemake -R variant_filter
+snakemake --snakefile RedfishMarkerCall -R bwa_index 
+snakemake --snakefile RedfishMarkerCall -R bwa_map
+snakemake --snakefile RedfishMarkerCall -R samtools_sort
+snakemake --snakefile RedfishMarkerCall -R samtools_index
+snakemake --snakefile RedfishMarkerCall -R bcftools_call
+snakemake --snakefile RedfishMarkerCall -R variant_filter
+```
+
+### Commands for execution of Plink conversion Snakemake workflow
+
+```
+```
+#execute the snakemake file
+
+#dry run to test procedure
+snakemake --snakefile PlinkSnakefile -np
+
+snakemake --snakefile PlinkSnakefile --cores
+
+
 ```
 
 ## Tests
 
-There are five example files and the reference panel included within the `data/` folder. These allow for a small test run of the pipeline to be conducted.
+There are five example files and the reference panel included within the `data/` folder. These allows for a small test run of the pipeline to be conducted.
 

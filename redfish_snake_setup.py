@@ -50,6 +50,7 @@ def main():
     snake_config_info["genome"] = parsed_args.genome
     snake_config_info["bcf"] = parsed_args.bcf
     snake_config_info["vcf"] = parsed_args.vcf
+    snake_config_info["plink"] = parsed_args.plink
     
     #write the dict info to a config
     write_snakemake_config(snake_config_info)

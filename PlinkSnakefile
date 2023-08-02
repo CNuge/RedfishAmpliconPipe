@@ -1,0 +1,49 @@
+configfile: "config.json" #this file generated with `python redfish_snake_setup.py`
+
+rule all:
+    input:
+        config["plink"] + ".ped",
+        config["plink"] + ".map"
+
+
+rule plink_filter:
+    """
+    Convert vcf to plink format.
+    Produce BED/BIM output pair for subsequent use.
+    """
+    input:
+        vcf=config["vcf"]
+    output:
+        bim=config["plink"] + ".bed",
+        bam=config["plink"] + ".bim",
+        fam=config["plink"] + ".fam"
+    params:
+        plink_filename = config["plink"]
+    log:
+        "logs/bwa_mem/plink_process.log" 
+    threads: 24
+    shell:
+        "plink --vcf {input.vcf} --allow-extra-chr --make-bed "
+            "--double-id --maf 0.01 --geno 0.05 --mind 0.2 "
+            "--out {params.plink_filename}"
+
+
+rule plink_recode:
+    """
+    Recode as a PED/MAP pair
+    """    
+    input:
+        bim=config["plink"] + ".bed",
+        bam=config["plink"] + ".bim",
+        fam=config["plink"] + ".fam"
+    output:
+        ped=config["plink"] + ".ped",
+        map=config["plink"] + ".map",
+    params:
+        plink_filename = config["plink"]
+    log:
+        "logs/bwa_mem/plink_recode.log" 
+    threads: 24
+    shell:
+        "plink --bfile {params.plink_filename} "
+        " --recode --tab --allow-extra-chr --out {params.plink_filename} "
