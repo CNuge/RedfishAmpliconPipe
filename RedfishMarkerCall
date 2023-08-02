@@ -1,0 +1,150 @@
+configfile: "config.json" #this file generated with `python redfish_snake_setup.py`
+#configfile: "test_config.json" #this file generated with `python redfish_snake_setup.py`
+#using only the baby version to start
+
+def get_fastp_input_fastqs(wildcards):
+    """Get the list of sample names to build inputs from the specified json config file."""
+    return config["samples"][wildcards.sample]
+
+rule all:
+    input:
+        "plots/quals.svg"
+
+rule fastp_cut:
+    """
+    Run fastp for the list of input files, 
+    right trimming the reads based on quality.
+    """
+    input:
+        get_fastp_input_fastqs
+    output:
+        "data/trimmed/{sample}.fastq.gz"
+    log:
+        "logs/fastp/{sample}.log"   
+    threads: 24
+    shell:
+        "fastp -i {input} --cut_right --cut_right_window_size 4 "
+        "--cut_right_mean_quality 20 -o {output} --thread {threads}"
+
+
+rule bwa_index:
+    """
+    Index the genom file for alignment
+    """
+    input: config["genome"]
+    output:
+        "{input}.amb"
+    shell:
+        "bwa index {input}"
+
+
+rule bwa_map:
+    """
+    Take the specified input genome and the trimmed sample read files. 
+    Align the latter to the former.
+    """
+    input:
+        config["genome"],
+        "data/trimmed/{sample}.fastq.gz" #could specify with function
+    output:
+        "data/mapped_reads/{sample}.bam"
+    params:
+        rg=r"@RG\tID:{sample}\tSM:{sample}\tLB:library1"
+    log:
+        "logs/bwa_mem/{sample}.log" #logging info to a 'logs/' folder
+    threads: 24
+    shell:
+        "bwa mem -R '{params.rg}' -t {threads} {input} | samtools view -Sb - > {output}"
+
+
+rule samtools_sort:
+    """
+    Sort the bam file.
+    """
+    input:
+        "data/mapped_reads/{sample}.bam"
+    output:
+        "data/sorted_reads/{sample}.bam"
+    shell:
+        "samtools sort -T data/sorted_reads/{wildcards.sample} "
+        "-O bam {input} > {output}"
+
+
+rule samtools_index:
+    """
+    Index the bam file.
+    """
+    input:
+        "data/sorted_reads/{sample}.bam"
+    output:
+        "data/sorted_reads/{sample}.bam.bai"
+    shell:
+        "samtools index {input}"
+
+
+rule bcftools_call:
+    """
+    Use bcftools to create a pileup and call the genetic variants.
+    """
+    input:
+        fa=config["genome"],
+        bam=expand("data/sorted_reads/{sample}.bam", sample=config["samples"]),
+        bai=expand("data/sorted_reads/{sample}.bam.bai", sample=config["samples"])
+    output:
+        bcf=config["bcf"]
+    threads: 24
+    shell:
+        " bcftools mpileup -Ou --max-depth 2000000 --threads {threads} -f {input.fa} {input.bam} | "
+        " bcftools call --threads {threads} -mv -Ob -V indels -o {output.bcf}"
+        #above specifies to make the snp calls, "-Ob" says make output a binary, "-V indels" says skip indel variants
+
+
+rule variant_filter:
+    """
+    Filter the bcf file based on quality and produce a .vcf file.
+    """
+    input:
+        bcf=config["bcf"]
+    output:
+        vcf=config["vcf"]
+    threads: 24
+    shell:
+        ' bcftools filter -i "DP>1800  && QUAL >= 30" {input.bcf}  > {output.vcf}'
+
+#bcftools filter -i "DP>1800  && QUAL >= 30"  redfishamplicon_calls.bcf   >  redfishamplicon_calls.vcf
+
+
+## GETTING WARNING WITH PLINK
+## NEED TO FIGURE OUT PROPER NAME HANDLING
+
+#rule plink_process:
+#    """
+#    Further filter the .vcf file based on MAF, geno, and mind.
+#    Produce BED/BIM output pair for subsequent use.
+#    """
+#    input:
+#        vcf=config["vcf"]
+#    params:
+#        plink_filename=config["plink"]
+#    log:
+#        "logs/bwa_mem/plink_process.log" 
+#    threads: 24
+#    shell:
+#        "plink --vcf {input.vcf} --allow-extra-chr --make-bed "
+#            "--double-id --maf 0.01 --geno 0.05 --mind 0.2 "
+#            "--out {params.plink_filename}"
+
+#plink --vcf redfishamplicon_calls.vcf --allow-extra-chr --make-bed --double-id --maf 0.01 --geno 0.05 --mind 0.05 --out redfishamplicon
+#above works, but doesn't check for successful exit
+
+rule plot_quals:
+    """
+    Use python script to plot a histogram of the quality values in the bcf file (pre filtering).
+    """
+    input:
+        config["bcf"]
+    output:
+        "plots/quals.svg"
+    script:
+        "scripts/plot-quals.py"
+
