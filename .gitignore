@@ -1,3 +1,5 @@
 # Ignore everything in this directory
 config.json
 .snakemake/
+logs/
+data/calls/
