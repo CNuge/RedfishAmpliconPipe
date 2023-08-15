@@ -1,9 +1,6 @@
 # RedfishAmpliconPipe
 A snakemake pipeline for processing and snp calling of amplicon data for redfish species identification.
 
-Please note this is a work in progress, documentation will be updated with time.
-
-
 ## Setup / Installation
 
 The easiest way to set up the snakemake environment is with conda. The commands below should help you get started, but exact setup may vary depending on your environment.
